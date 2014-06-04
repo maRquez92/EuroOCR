@@ -6,14 +6,34 @@
     tools:context="com.example.ndktest.MainActivity"
     tools:ignore="MergeRootFrame" >
 
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="260dp"
+        android:layout_height="260dp"
+        android:layout_gravity="center"
+        android:src="@drawable/abc_ab_bottom_solid_dark_holo" />
+
     <EditText
         android:id="@+id/numbers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10" >
+        android:layout_gravity="top"
+        android:ems="10" />
 
-        <requestFocus />
-    </EditText>
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:text="Load" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="164dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="100dp"
+        android:text="Process" />
 
 </FrameLayout>
 
