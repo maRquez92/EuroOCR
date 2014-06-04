@@ -2,6 +2,7 @@ package com.example.ndktest;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
@@ -14,6 +15,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 public class ProcessImage extends AsyncTask<String, Void, Void>
 {
@@ -30,8 +32,8 @@ public class ProcessImage extends AsyncTask<String, Void, Void>
    
    private String imagePath;
    private String tessdataPath;
-   private String resultString;
    private Context context;
+   private List<String> results;
    
     public ProcessImage(Context myContext, String imageAbsolutePath)
     {
@@ -81,11 +83,12 @@ public class ProcessImage extends AsyncTask<String, Void, Void>
     	
   	  	tessdataPath = MyUtils.expandDataIfNeeded(context);
 
-        StringBuilder output = new StringBuilder();
+  	  	Mat resultMat = new Mat();
+        //StringBuilder output = new StringBuilder();
   	  	//Mat resultMat = NonfreeJNILib.main(talaoMat,logoMat,ImageMat,output);
-  	  	Mat resultMat = NonfreeJNILib.main(talaoMat,logoMat,imagePath,tessdataPath,output);
+  	  	results = NonfreeJNILib.main(talaoMat,logoMat,imagePath,tessdataPath,resultMat);
   	  	//NonfreeJNILib.drawSiftKeyPoints(ImageMat);
-  	  	resultString = output.toString();
+
   	  	Log.i(TAG, "RESULTBITMAP");
 
         resultBitmap = Bitmap.createBitmap(resultMat.cols(),  resultMat.rows(),Bitmap.Config.ARGB_8888);;
@@ -101,9 +104,17 @@ public class ProcessImage extends AsyncTask<String, Void, Void>
     protected void onPostExecute(Void unused)
     {
   	  Log.i(TAG, "onPostExecute");
+  	  
+  	  for (String str : results)
+  	  {
+  		  Toast.makeText(context, "OCRed: " + str,Toast.LENGTH_LONG).show();
+  		  MainActivity.appendText(str+"\n");
+  	  }
+
   	  MainActivity.setImage(resultBitmap);
   	 // String res = TesseractHandler.getText(resultBitmap, true);
-  	  MainActivity.setText("Data="+resultString);
+  	  //MainActivity.setText("Data="+results.get(0));
+  	  
     }
       
 }

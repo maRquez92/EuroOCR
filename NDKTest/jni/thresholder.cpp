@@ -107,20 +107,20 @@ void NiblackSauvolaWolfJolion (InputArray _src, OutputArray _dst,const BhThresho
             // Calculate the threshold
             switch (version) {
 
-            case NIBLACK:
+            case BhThresholdMethod::NIBLACK:
                     th = m + k*s;
                     break;
 
-            case SAUVOLA:
+            case BhThresholdMethod::SAUVOLA:
                     th = m * (1 + k*(s/dR-1));
                     break;
 
-            case WOLFJOLION:
+            case BhThresholdMethod::WOLFJOLION:
                     th = m + k * (s/max_s-1) * (m-min_I);
                     break;
 
                 default:
-					//std::cerr << "Unknown threshold type in ImageThresholder::surfaceNiblackImproved()\n";
+					std::cerr << "Unknown threshold type in ImageThresholder::surfaceNiblackImproved()\n";
                     exit (1);
             }
 
@@ -171,7 +171,7 @@ void NiblackSauvolaWolfJolion (InputArray _src, OutputArray _dst,const BhThresho
             for (int i=x_lastth; i<src.cols; ++i)
                 thsurf.fset(i,u,th);
     }
-   // std::cerr << "surface created" << std::endl;
+    std::cerr << "surface created" << std::endl;
 
 
     for (int y=0; y<src.rows; ++y) 
@@ -219,11 +219,11 @@ void BhThresholder::doThreshold(InputArray _src ,OutputArray _dst,const BhThresh
     //medianBlur(src,dst,7);
     switch (method)
     {
-    case OTSU :
+    case BhThresholdMethod::OTSU :
         threshold(dst,dst,128,255,CV_THRESH_OTSU);
         break;
-    case SAUVOLA :
-    case WOLFJOLION :
+    case BhThresholdMethod::SAUVOLA :
+    case BhThresholdMethod::WOLFJOLION :
         NiblackSauvolaWolfJolion (src, dst, method, winx, winy, optK, 128);
 
 

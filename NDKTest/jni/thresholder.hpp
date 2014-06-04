@@ -1,12 +1,11 @@
 #ifndef _THRESHOLDER
 #define _THRESHOLDER
 
-#include <opencv/cv.h>
-#include <opencv2/core/core.hpp>
+#include <opencv\cv.h>
 
 using namespace cv;
 
-enum BhThresholdMethod{OTSU,NIBLACK,SAUVOLA,WOLFJOLION};
+enum class BhThresholdMethod{OTSU,NIBLACK,SAUVOLA,WOLFJOLION};
 
 
 class BhThresholder

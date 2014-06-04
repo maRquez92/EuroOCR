@@ -1,5 +1,8 @@
 package com.example.ndktest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opencv.core.Mat;
 
 import android.util.Log;
@@ -42,12 +45,16 @@ public class NonfreeJNILib {
 	}
 	*/
 	
-	public static Mat main( Mat talao , Mat logo , String imagePath , String tessdataPath, StringBuilder out )
+	public static List<String> main( Mat talao , Mat logo , String imagePath , String tessdataPath, Mat res )
 	{
-		Mat res = new Mat();
-		String resText = maine(talao.nativeObj,logo.nativeObj,imagePath,tessdataPath,res.nativeObj);
-		out.append(resText);
-		return res.clone();
+		String[] results = maine(talao.nativeObj,logo.nativeObj,imagePath,tessdataPath,res.nativeObj);
+		
+		List<String> list = new ArrayList<String>();
+		if(results != null)
+			for (String str : results)
+				list.add(str);
+		
+		return list;
 	}
 	
 	
@@ -67,6 +74,6 @@ public class NonfreeJNILib {
 	
     //public static native void runDemo(long mat, long rMat);
 	//public static native String getJniString();
-	public static native String maine(long talao, long logo, String photoPath, String tessdataPath, long res);
+	public static native String[] maine(long talao, long logo, String photoPath, String tessdataPath, long res);
     public static native void nativeDrawSiftKp( long inputImage );
 }

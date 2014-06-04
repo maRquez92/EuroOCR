@@ -1,6 +1,6 @@
 obj/local/armeabi/objs/ndkCV/ndkCV.o: jni/ndkCV.cpp jni/ndkCV.hpp \
  jni/thresholder.hpp \
- C:/Users/Paulo/Downloads/OpenCV-2.4.8-android-sdk/OpenCV-2.4.8-android-sdk/sdk/native/jni/include/opencv/cv.h \
+ C:/Users/Paulo/Downloads/OpenCV-2.4.8-android-sdk/OpenCV-2.4.8-android-sdk/sdk/native/jni/include/opencv\cv.h \
  C:/Users/Paulo/Downloads/OpenCV-2.4.8-android-sdk/OpenCV-2.4.8-android-sdk/sdk/native/jni/include/opencv2/core/core_c.h \
  C:/Users/Paulo/Downloads/OpenCV-2.4.8-android-sdk/OpenCV-2.4.8-android-sdk/sdk/native/jni/include/opencv2/core/types_c.h \
  C:/Users/Paulo/Downloads/android-ndk-r9c-windows-x86_64/android-ndk-r9c/platforms/android-15/arch-arm/usr/include/assert.h \
@@ -122,7 +122,7 @@ jni/ndkCV.hpp:
 
 jni/thresholder.hpp:
 
-C:/Users/Paulo/Downloads/OpenCV-2.4.8-android-sdk/OpenCV-2.4.8-android-sdk/sdk/native/jni/include/opencv/cv.h:
+C:/Users/Paulo/Downloads/OpenCV-2.4.8-android-sdk/OpenCV-2.4.8-android-sdk/sdk/native/jni/include/opencv\cv.h:
 
 C:/Users/Paulo/Downloads/OpenCV-2.4.8-android-sdk/OpenCV-2.4.8-android-sdk/sdk/native/jni/include/opencv2/core/core_c.h:
 

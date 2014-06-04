@@ -1,16 +1,11 @@
 #include "ndkCV.hpp"
 
 
-//#include <tesseract/baseapi.h>
-
-
-using namespace cv;
-using namespace std;
-
-
-
-JNIEXPORT jstring JNICALL Java_com_example_ndktest_NonfreeJNILib_maine( JNIEnv* env, jobject obj, jlong talao, jlong logo, jstring photoPath, jstring tessdataPath, jlong res)
+JNIEXPORT jobjectArray JNICALL Java_com_example_ndktest_NonfreeJNILib_maine( JNIEnv* env, jobject obj, jlong talao, jlong logo, jstring photoPath, jstring tessdataPath, jlong res)
 {
+	vector<string> lines;
+
+
 	Mat logoT = *((cv::Mat*)logo);
 	Mat talaoT = *((cv::Mat*)talao);
 	//Mat photoT = *((cv::Mat*)photo);
@@ -98,17 +93,7 @@ JNIEXPORT jstring JNICALL Java_com_example_ndktest_NonfreeJNILib_maine( JNIEnv* 
 	Mat processedDataImage = processImage(auxDR,false,true);
 
 
-	*((cv::Mat*)res) = processedDataImage;
 
-
-
-	img_matches.release();
-	img_matchesLogo.release();
-	recortResultLogo.release();
-	recortDataResult.release();
-	trainTalao.release();
-	trainLogo.release();
-	/*
 
 	//Recordar zona dos Números------------------------------------------------------------------------
 
@@ -119,20 +104,125 @@ JNIEXPORT jstring JNICALL Java_com_example_ndktest_NonfreeJNILib_maine( JNIEnv* 
 
 	Mat recortNumerosResult = recortResult(recorteNumeros);
 
-
 	Mat processedNumerosImage = processImage(recortNumerosResult,true,false);
 
 
-	*((cv::Mat*)res) = processedNumerosImage;
+
+	// Free memory of mats that wont be used anymore
+	img_matches.release();
+	img_matchesLogo.release();
+	recortResultLogo.release();
+	recortDataResult.release();
+	trainTalao.release();
+	trainLogo.release();
+
+
+
+
+	// Reconhecer texto da Data ------------------------------------------------------------------------
+
+	// Mark Begin of strings with data recognition
+	lines.push_back(dataMarker);
+
+	// Recognize data by complete image
+	char* dataText = getText(tessDataPath,processedDataImage,true);
+
+	string processedRes = processText(dataText);
+		if(processedRes.compare("FAIL") != 0)
+			lines.push_back(processedRes);
+
+
+	// Find sub-images that can obtain better results
+
+	vector<Rect> charsBoundsData = findCharsRects(processedDataImage.clone());
+	vector<Rect> linesBoundsData = findLinesRects(charsBoundsData,processedDataImage.size().width,processedDataImage.size().height);
+
+
+	//for each(Rect aux in linesBoundsData)
+	for( int j=0 ; j < linesBoundsData.size() ; j++ )
+	{
+		Rect aux = linesBoundsData.at(j);
+
+		Mat lineRegion = processedDataImage(aux).clone();
+		int top = (int) (0.5*lineRegion.rows);
+		int bottom = (int) (0.5*lineRegion.rows);
+		int left = (int) (0.5*lineRegion.cols);
+		int right = (int) (0.5*lineRegion.cols);
+
+		Mat lineRegionA;
+
+		copyMakeBorder( lineRegion, lineRegionA, top, bottom, left, right, BORDER_CONSTANT, 0 );
+		threshold(lineRegionA,lineRegionA,20,255,0);
+
+		dataText = getText(tessDataPath,lineRegionA, true);
+		string resD = processText(dataText);
+
+
+		if(resD.compare("FAIL") != 0)
+			lines.push_back(resD);
+
+	}
+
+
+	// Reconhecer texto dos Numeros ------------------------------------------------------------------------
+
+	// Mark Begin of strings with data recognition
+	lines.push_back(numbersMarker);
+
+
+	char* numerosText;
+
+	vector<Rect> charsBounds = findCharsRects(processedNumerosImage.clone());
+	vector<Rect> linesBounds = findLinesRects(charsBounds,processedNumerosImage.size().width,processedNumerosImage.size().height);
+
+
+	for( int j=0 ; j < linesBounds.size() ; j++ )
+	{
+		Rect aux = linesBounds.at(j);
+
+		Mat lineRegion = processedNumerosImage(aux).clone();
+		int top = (int) (0.5*lineRegion.rows);
+		int bottom = (int) (0.5*lineRegion.rows);
+		int left = (int) (0.5*lineRegion.cols);
+		int right = (int) (0.5*lineRegion.cols);
+
+		Mat lineRegionA;
+
+		copyMakeBorder( lineRegion, lineRegionA, top, bottom, left, right, BORDER_CONSTANT, 0 );
+		//processedNumerosImage(aux).copyTo(blackImage(bROI));
+		threshold(lineRegionA,lineRegionA,20,255,0);
+
+		//imwrite("Lines/"+std::to_string(j) + ".png", lineRegionA);
+		numerosText = getText(tessDataPath,lineRegionA,false);
+
+		string resN = processText(numerosText);
+		if(resN.compare("FAIL") != 0)
+			lines.push_back(resN);
+
+	}
+
+
+	//lines = processInformation(lines);
+
+
+	// Return Values
+
+	//*((cv::Mat*)res) = processedNumerosImage;
 	//*((cv::Mat*)res) = recortDataResult;
+	*((cv::Mat*)res) = processedDataImage;
 
 
-*/
 
-	char* resStr = getText(tessDataPath,processedDataImage,true);
+	jobjectArray returns = (jobjectArray) env->NewObjectArray(lines.size(),
+	env->FindClass("java/lang/String"), env->NewStringUTF(""));
 
+	for (int i = 0; i < lines.size(); ++i) {
+		env->SetObjectArrayElement(returns, i,
+				env->NewStringUTF(lines[i].c_str()));
+	}
 
-	return env->NewStringUTF(resStr);
+	return returns;
+	//return env->NewStringUTF(dataText);
 	//return env->NewStringUTF("Processment Complete!");
 
 }
@@ -338,8 +428,6 @@ Mat processImage(const Mat& inputImage, bool numeros = false, bool data = false)
 	//else
 	{
 
-
-
 		float desiredWidth = 1000;
 
 		if(data)
@@ -356,21 +444,9 @@ Mat processImage(const Mat& inputImage, bool numeros = false, bool data = false)
 		Mat resultA;
 
 
-
-
-		//unsharpMask(grayLevel);
-
-		//grayLevelA = grayLevel;
-
-
 		cv::adaptiveBilateralFilter(grayLevel,grayLevelA,cv::Size(3, 3),3);
 		//cv::bilateralFilter(grayLevel,grayLevelA,cv::Size(3, 3),3);
 		cv::addWeighted(grayLevel, 1.5, grayLevelA, -0.5, 0, grayLevelA);
-
-		//cv::namedWindow( "LINESA", CV_WINDOW_NORMAL );
-		//cv::imshow( "LINESA", grayLevelA );
-
-
 
 
 		Mat resultC;
@@ -381,7 +457,7 @@ Mat processImage(const Mat& inputImage, bool numeros = false, bool data = false)
 
 			resultA = Mat(grayLevelA.size(),grayLevelA.type());
 
-			as.doThreshold(grayLevelA,resultA,WOLFJOLION);
+			as.doThreshold(grayLevelA,resultA,BhThresholdMethod::WOLFJOLION);
 
 			resultC = resultA;
 
@@ -410,7 +486,7 @@ Mat processImage(const Mat& inputImage, bool numeros = false, bool data = false)
 						cv::Range(c, min(c + N, resultA.cols)));
 
 					//your_function_processTile(tile);
-					as.doThreshold(tile,resultTile,WOLFJOLION);
+					as.doThreshold(tile,resultTile,BhThresholdMethod::WOLFJOLION);
 
 				}
 			}
@@ -475,7 +551,7 @@ Mat processImage(const Mat& inputImage, bool numeros = false, bool data = false)
 						cv::Range(c, min(c + N, resultC.cols)));
 
 					//your_function_processTile(tile);
-					as.doThreshold(tile,resultTile,WOLFJOLION);
+					as.doThreshold(tile,resultTile,BhThresholdMethod::WOLFJOLION);
 
 				}
 			}
@@ -492,19 +568,13 @@ Mat processImage(const Mat& inputImage, bool numeros = false, bool data = false)
 		}
 
 		//int kernel_size = 4;
-		//std::cout << "kernelsize = " << kernel_size << std::endl;
+		std::cout << "kernelsize = " << kernel_size << std::endl;
 		cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(kernel_size, kernel_size));
 		//cv::Mat element(kernel_size,kernel_size,CV_8UC1);
 
 
 		morphologyEx( resultA, resultA, cv::MORPH_CLOSE, element );
 		morphologyEx( resultA, resultA, cv::MORPH_CLOSE, element );
-		//morphologyEx( resultA, resultA, cv::MORPH_OPEN, element );
-		//morphologyEx( result, result, cv::MORPH_CLOSE, element );
-
-
-		//morphologyEx( result, result, cv::MORPH_DILATE, element );
-		//morphologyEx( result, result, cv::MORPH_ERODE, element );
 
 
 
@@ -520,6 +590,8 @@ Mat processImage(const Mat& inputImage, bool numeros = false, bool data = false)
 	return result;
 
 }
+
+
 
 
 
@@ -545,15 +617,21 @@ cv::Mat findBiggestBlob(cv::Mat & matImage){
     return matImage;
 }
 
-vector<Rect> findCharsRects(cv::Mat & matImage, int *meanHeight = NULL)
+
+
+vector<Rect> findCharsRects(cv::Mat matImage)
 {
 	int min_area = matImage.size().width/30 * matImage.size().height/30;
     int largest_contour_index=0;
+	int thresh = 100;
 
 	vector<Rect> charsBounds;			// Vector for storing Rects
     vector< vector<Point> > contours; // Vector for storing contour
     vector<Vec4i> hierarchy;
-
+	/// Detect edges using canny
+	 Canny( matImage, matImage, thresh, thresh*2, 3 );
+	/// Find contours
+	//findContours( canny_output, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
     findContours( matImage, contours, hierarchy,CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE ); // Find the contours in the image
 
 	int sum = 0;
@@ -570,33 +648,33 @@ vector<Rect> findCharsRects(cv::Mat & matImage, int *meanHeight = NULL)
 		}
     }
 
-	if(meanHeight)
-	{
-		int mediaHeight = sum/charsBounds.size();
-		*meanHeight = mediaHeight;
-	}
-
-	//namedWindow("mat");
-	//cv::resize(recortResult, recortResult, Size(recortResult.size().width/4,recortResult.size().height/4));
-	//imshow( "mat", matImage );
-    //drawContours( matImage, contours, largest_contour_index, Scalar(255), CV_FILLED, 8, hierarchy ); // Draw the largest contour using previously stored index.
-	return charsBounds;
+    return charsBounds;
 }
 
 
-bool SortRects(const Rect& d1, const Rect& d2)
+
+
+
+bool SortRects_Position(const Rect& d1, const Rect& d2)
 {
 	return d1.y < d2.y;
 }
 
-vector<Rect> findLinesRects(vector<Rect> charsRects, int imgWidth, int imgHeight, int meanHeight)
+bool SortRects_Height(const Rect& d1, const Rect& d2)
 {
+	return d1.height > d2.height;
+}
+
+vector<Rect> findLinesRects(vector<Rect> charsRects, int imgWidth, int imgHeight)
+{
+
+	std::sort(charsRects.begin(), charsRects.end(), SortRects_Height);
 
 	vector<Rect> linesBounds;			// Vector for storing Rects
     vector<Vec4i> hierarchy;
 
 	//int maxDif = meanHeight;
-	//int maxDif = 20;
+	//int maxDif = 60;
 	for(int i = 0 ; i < charsRects.size() ; i++)
 	{
 		Rect charRect = charsRects.at(i);
@@ -636,9 +714,9 @@ vector<Rect> findLinesRects(vector<Rect> charsRects, int imgWidth, int imgHeight
 
 		if(newLine)
 		{
-			int yPos = std::max( 0 , (int)(charRect.y * 0.99) );
+			int yPos = max( 0 , (int)(charRect.y * 0.99) );
 			//int rectHeight = min(imgHeight - yPos,max(charRect.height*1.05,meanHeight));
-			int rectHeight = std::min( imgHeight - yPos , (int)(charRect.height * 1.01));
+			int rectHeight = min( imgHeight - yPos , (int)(charRect.height * 1.01));
 
 			Rect toAdd = Rect(0, yPos, imgWidth, rectHeight);
 
@@ -648,7 +726,7 @@ vector<Rect> findLinesRects(vector<Rect> charsRects, int imgWidth, int imgHeight
 
     }
 	// Sort the vector using SortRects and std::sort
-	std::sort(linesBounds.begin(), linesBounds.end(), SortRects);
+	std::sort(linesBounds.begin(), linesBounds.end(), SortRects_Position);
 	return linesBounds;
 }
 

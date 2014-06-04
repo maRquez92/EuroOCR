@@ -104,6 +104,7 @@ public class MainActivity extends Activity {
             public void onClick(View v)
             {            	
                 ProcessImage procIm = new ProcessImage(getApplicationContext(),(String)(MyUtils.getRealPathFromURI(getApplicationContext(), outputFileUri)));
+                //ProcessImage procIm = new ProcessImage(getApplicationContext(),(String)(MyUtils.getFileNameByUri(getApplicationContext(), outputFileUri)));
                 //Call execute 
                 procIm.execute();
                 
@@ -130,6 +131,11 @@ public class MainActivity extends Activity {
   public static void setText(String text)
   {
 	  editText.setText(text);
+  }
+  
+  public static void appendText(String text)
+  {
+	  editText.append(text);
   }
   
   public static void setImage(Bitmap image)
