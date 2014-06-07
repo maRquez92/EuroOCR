@@ -112,13 +112,27 @@ public class MainActivity extends Activity {
             }
         });
         
-       
+        Button menuNumbersButton = (Button) this.findViewById(R.id.button3);
+
+        menuNumbersButton.setOnClickListener(new View.OnClickListener() {
+	        @Override
+	        public void onClick(View v)
+	        {        
+		        //define a new Intent for the second Activity
+		  		Intent intent = new Intent(MainActivity.this,MenuNumbers.class);
+		   
+		  		//start the second Activity
+		  		startActivity(intent);
+	        }
+        });
+        
         
         // Final Part of Getting and Testing Numbers
         
         
         //Create instance for Getting The Numbers (Async)
-        GetResult task = new GetResult("https://nunofcguerreiro.com/api-euromillions?result=2011-03-11");
+        //GetResult task = new GetResult("https://nunofcguerreiro.com/api-euromillions?result=2011-03-11");
+        GetResult task = new GetResult(2011,03,11);
         //Call execute 
         task.execute();
         

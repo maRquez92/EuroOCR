@@ -26,6 +26,13 @@ public class GetResult  extends AsyncTask<String, Void, Void> {
         super();
         urlString = i_url;
     }
+    
+    public GetResult(int year, int month, int day)
+    {
+        super();
+        urlString = "https://nunofcguerreiro.com/api-euromillions?result="+year+"-"+month+"-"+day;
+    }
+    
      
     protected void onPreExecute()
     {

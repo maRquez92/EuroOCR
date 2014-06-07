@@ -98,12 +98,13 @@ public static String getFileNameByUri(Context context, Uri uri)
 
 public static String expandDataIfNeeded(Context context) {
 
+	String lang = "por";
 	File path = context.getFilesDir();
 	File tessData = new File(path, "tessdata");
 	if (!tessData.exists())
 		tessData.mkdir();
 	
-	File trained = new File(tessData, "eng.traineddata");
+	File trained = new File(tessData, lang+".traineddata");
 	if (!trained.exists()) {
 
 		try {

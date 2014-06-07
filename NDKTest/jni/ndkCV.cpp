@@ -128,8 +128,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_ndktest_NonfreeJNILib_maine( JNI
 	char* dataText = getText(tessDataPath,processedDataImage,true);
 
 	string processedRes = processText(dataText);
-		if(processedRes.compare("FAIL") != 0)
-			lines.push_back(processedRes);
+	if(processedRes.compare("FAIL") != 0)
+		lines.push_back(processedRes);
 
 
 	// Find sub-images that can obtain better results
@@ -202,7 +202,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_ndktest_NonfreeJNILib_maine( JNI
 	}
 
 
-	//lines = processInformation(lines);
+	lines = processInformation(lines);
 
 
 	// Return Values
@@ -233,7 +233,7 @@ char* getText(string tessDataPath, Mat image_with_text, bool data = false)
 	__android_log_print(ANDROID_LOG_DEBUG, "OCR-DEMO",
 					"Looking for tesseract in %s", tessDataPath.c_str());
 
-	const char* lang = "eng";
+	const char* lang = "por";
 
 
 		// Pass it to Tesseract API
@@ -255,8 +255,8 @@ char* getText(string tessDataPath, Mat image_with_text, bool data = false)
 
 		tess.SetVariable("tessedit_fix_hyphens", "false");
 		tess.SetVariable("user_words_suffix", " user-words");
-		//tess.SetVariable("load_system_dawg", "false");
-		//tess.SetVariable("load_freq_dawg", "false");
+		tess.SetVariable("load_system_dawg", "false");
+		tess.SetVariable("load_freq_dawg", "false");
 		tess.SetVariable("tessedit_test_adaption", "true");
 		tess.SetVariable("textord_force_make_prop_words", "false");
 		tess.SetVariable("tessedit_fix_fuzzy_spaces", "true");
@@ -791,72 +791,86 @@ vector<string> processInformation(vector<string> lines)
 
 	for( int i=0 ; i < lines.size() ; i++ )
 	{
+
 		string line = lines.at(i);
 
-		bool firstOfLine = true;
-
-		if(line.length() < maxLineSize)
+		if(!startedNumbers)
 		{
-			string toAdd;
-			int wordsInString = 0;
-
-			char* lineC = (char*)line.c_str();
-
-			char * word = strtok (lineC ," ");
-
-			while (word != NULL)
+			if(line.compare(numbersMarker) == 0)
 			{
-				string wordS(word);
+				startedNumbers = true;
+			}
 
-				std::size_t foundN = wordS.find("N");
+			res.push_back(line);
 
-				if(foundN != std::string::npos)
+		}
+		else
+		{
+			bool firstOfLine = true;
+
+			if(line.length() < maxLineSize)
+			{
+				string toAdd;
+				int wordsInString = 0;
+
+				char* lineC = (char*)line.c_str();
+
+				char * word = strtok (lineC ," ");
+
+				while (word != NULL)
 				{
-					wordS.erase(0,foundN+1);
-					startedNumbers = true;
-				}
-				else
-				{
-					std::size_t foundDot = wordS.find(".");
+					string wordS(word);
 
-					if(foundDot != std::string::npos)
+					std::size_t foundN = wordS.find("N");
+
+					if(foundN != std::string::npos)
 					{
-						wordS.erase(0,foundDot+1);
+						wordS.erase(0,foundN+1);
 						startedNumbers = true;
 					}
-				}
-
-				wordS = removeChar( wordS , 'E');
-
-				if(firstOfLine && startedNumbers)
-				{
-					wordS.erase(0,wordS.length()-2);
-					firstOfLine = false;
-				}
-
-				if(startedNumbers && wordS.length() > 3)
-				{
-
-				}
-				else
-				{
-					// Ao apagar conteudo, a palavra resultante pode ficar vazia
-					if(wordS.length()>0)
+					else
 					{
-						toAdd = toAdd + wordS + string(" ");
-						wordsInString++;
+						std::size_t foundDot = wordS.find(".");
+
+						if(foundDot != std::string::npos)
+						{
+							wordS.erase(0,foundDot+1);
+							startedNumbers = true;
+						}
 					}
+
+					wordS = removeChar( wordS , 'E');
+
+					if(firstOfLine && startedNumbers)
+					{
+						wordS.erase(0,wordS.length()-2);
+						firstOfLine = false;
+					}
+
+					if(startedNumbers && wordS.length() > 3)
+					{
+
+					}
+					else
+					{
+						// Ao apagar conteudo, a palavra resultante pode ficar vazia
+						if(wordS.length()>0)
+						{
+							toAdd = toAdd + wordS + string(" ");
+							wordsInString++;
+						}
+					}
+					word = strtok (NULL, " ");
+
 				}
-				word = strtok (NULL, " ");
+
+				// se for só uma palavra/numero, provavelmente é lixo
+				if(wordsInString > 1)
+				{
+					res.push_back(toAdd);
+				}
 
 			}
-
-			// se for só uma palavra/numero, provavelmente é lixo
-			if(wordsInString > 1)
-			{
-				res.push_back(toAdd);
-			}
-
 		}
 	}
 
