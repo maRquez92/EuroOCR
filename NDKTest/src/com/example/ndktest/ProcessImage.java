@@ -2,6 +2,7 @@ package com.example.ndktest;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.opencv.android.Utils;
@@ -84,7 +85,7 @@ public class ProcessImage extends AsyncTask<String, Void, Void>
   	  	tessdataPath = MyUtils.expandDataIfNeeded(context);
 
   	  	Mat resultMat = new Mat();
-        //StringBuilder output = new StringBuilder();
+
   	  	//Mat resultMat = NonfreeJNILib.main(talaoMat,logoMat,ImageMat,output);
   	  	results = NonfreeJNILib.main(talaoMat,logoMat,imagePath,tessdataPath,resultMat);
   	  	//NonfreeJNILib.drawSiftKeyPoints(ImageMat);
@@ -107,12 +108,17 @@ public class ProcessImage extends AsyncTask<String, Void, Void>
   	  
   	  for (String str : results)
   	  {
-  		  Toast.makeText(context, "OCRed: " + str,Toast.LENGTH_LONG).show();
+  		 // Toast.makeText(context, "OCRed: " + str,Toast.LENGTH_LONG).show();
   		  MainActivity.appendText(str+"\n");
   	  }
+  	  
+  	  MyUtils.splitRecognizedStrings(results);
 
   	  MainActivity.setImage(resultBitmap);
-  	 // String res = TesseractHandler.getText(resultBitmap, true);
+  	  
+  	  MainActivity.finishProcess();
+  	
+  	  // String res = TesseractHandler.getText(resultBitmap, true);
   	  //MainActivity.setText("Data="+results.get(0));
   	  
     }

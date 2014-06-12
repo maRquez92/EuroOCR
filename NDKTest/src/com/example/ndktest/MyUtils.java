@@ -5,6 +5,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -19,20 +22,227 @@ public class MyUtils {
 	
 	private static String TAG = "Utils"; //this.getClass().getName();
 
-	
-	// Compare numbers with result
-    /*
-    int numberA[] = new int[] {10,20,30,40,50};
-    int numberB[] = new int[] {17,20,30,40,50};
-    int starsA[] = new int[] {1,5};
-    int starsB[] = new int[] {5,8};
+	public static int[][] mynumbers = new int[10][5];
+    public static int[][] mystars = new int[10][2];
     
-    int resNumbers = numberMatch(numberA, numberB, 5);
-    int resStars = numberMatch(starsA, starsB, 2);
-    */
+    public static int nBets = 0;
+    public static ArrayList<String> numbersList = new ArrayList<String>();
+    public static ArrayList<String> starsList = new ArrayList<String>();
+
+    
+    public static String year = "????";
+    public static String month = "??";
+    public static String day = "??";
+    
+	public static void splitRecognizedStrings(List<String> results)
+	{
+		boolean isDate = false;
+		boolean isNumbers = false;
+		int nBet = 0;
+		
+		int lastLineType = 0;	// numbers - 1 | stars - 2
+		
+		for(String line : results)
+		{
+			Log.i("OCR TEST", "line:"+line);
+			
+			if(line.compareTo("INIT_DATES") == 0)
+			{
+				isDate = true;
+			}
+			else if(line.compareTo("INIT_NUMBERS") == 0)
+			{
+				isNumbers = true;
+				isDate = false;
+			}
+			
+			if(isDate)
+			{
+				int iyear = 0;
+				int imonth = 0;
+				int iday = 0;
+				
+				String[] dateNumbers = line.split("\\/");
+				try
+				{
+					iyear = Integer.parseInt(dateNumbers[0].trim());
+				}
+				catch(Exception e)
+				{
+					iyear = Calendar.getInstance().get(Calendar.YEAR);
+				}
+				try
+				{
+					imonth = Integer.parseInt(dateNumbers[1].trim());
+				}
+				catch(Exception e)
+				{
+					imonth = Calendar.getInstance().get(Calendar.MONTH);
+				}
+				try
+				{
+					iday = Integer.parseInt(dateNumbers[2].trim());
+				}
+				catch(Exception e)
+				{
+					iday = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+				}
+				
+				
+				int weekDay = getWeekday(iyear, imonth, iday);
+				
+				if( weekDay != 2 && weekDay != 5)
+				{
+					while( weekDay != 2 && weekDay != 5 )
+					{
+						iday--;
+						weekDay--;
+						if(weekDay < 1)
+						{
+							weekDay = 7;
+						}
+						
+						if(iday < 1)
+						{
+							imonth--;
+							if(imonth < 1)
+							{
+								iyear--;
+								imonth = 12;
+							}
+							
+							Calendar calendar = Calendar.getInstance();
+							calendar.set(Calendar.YEAR, iyear);
+							calendar.set(Calendar.MONTH, imonth);
+							int numDays = calendar.getActualMaximum(Calendar.DATE);
+							iday = numDays;
+						}
+					}
+					
+				}
+				
+				year = Integer.toString(iyear);
+				month = format(imonth);
+				day = format(iday);
+
+				Log.i("OCR TEST", "FINAL DATE ="+year+"/"+month+"/"+day);
+
+			}
+			else if (isNumbers)
+			{
+				
+				String[] numbers = line.split("\\s+",5);
+
+				// Numbers
+				if(numbers.length > 3)
+				{
+					if(lastLineType == 1)
+					{
+						for(int i = 0 ; i < 2 ; i++)
+						{
+							mystars[nBet][i] = 0;
+							//starsList.add("?");
+						}
+						nBet++;
+					}
+					
+					int i = 0;
+					for(String number : numbers)
+					{
+						try
+						{
+							mynumbers[nBet][i] = Integer.parseInt(number.trim());
+							//numbersList.add(number.trim());
+
+						}
+						catch(Exception e)
+						{
+							mynumbers[nBet][i] = 0;
+							//numbersList.add(number.trim());
+						}
+						i++;
+					}
+					
+					lastLineType = 1;
+				}
+				else // stars
+				{
+					
+					int i = 0;
+					for(String number : numbers)
+					{
+						try
+						{
+							mystars[nBet][i] = Integer.parseInt(number.trim());
+							//starsList.add(number.trim());
+						}
+						catch(Exception e)
+						{
+							if(i<2)
+							{
+								mystars[nBet][i] = 0;
+								//starsList.add("?");
+							}
+								
+						}
+						i++;
+					}
+					
+					if(lastLineType == 1)
+					{
+						nBet++;
+					}
+					lastLineType = 2;
+				}
+				
+				
+			}
+
+		}
+		
+		int nIndex = 0;
+		int sIndex = 0;
+
+		for(int bet=0 ; bet < nBet ; bet++)
+	    {
+ 
+        	for(int x=0;x<5;x++)
+		    {
+            	Log.i("MyUtils","bet="+bet+" Numbers: "+mynumbers[bet][x] );
+            	numbersList.add(format(mynumbers[bet][x]));
+            	//Log.i("MyUtils","bet="+bet+" Numbers: "+numbersList.get(nIndex));
+            	//nIndex++;
+		    }
+			 
+        	for(int x=0;x<2;x++)
+		    {
+            	Log.i("MyUtils","bet="+bet+" Stars: "+mystars[bet][x] );
+            	starsList.add(format(mystars[bet][x]));
+            	//Log.i("MyUtils","bet="+bet+" Stars: "+starsList.get(sIndex) );
+            	//sIndex++;
+		    }
+	    }
+		
+		nBets = nBet;
+			
+	}
+	
+	public static String format(int x)
+	{
+		return (x==0)?"?":(((x<10)?"0":"") + x);
+	}
+	
+	public static int getWeekday(int y, int m, int d)
+	{
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, y);
+		calendar.set(Calendar.MONTH, m);
+		calendar.set(Calendar.DAY_OF_MONTH, d);
+		return calendar.get(Calendar.DAY_OF_WEEK);
+	}
 	
 	
-	private int numberMatch(int[] original, int[] test, int arraySize)
+	public static int numberMatch(int[] original, int[] test, int arraySize)
 	  {
 		  int matches = 0;
 		  

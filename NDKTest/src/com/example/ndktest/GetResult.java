@@ -7,8 +7,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 
 //Class with extends AsyncTask class
@@ -20,17 +22,23 @@ public class GetResult  extends AsyncTask<String, Void, Void> {
     private String Content;
     String data ="";
     String urlString;
-     
-    public GetResult(String i_url)
+    Context context;
+    
+    public GetResult(Context mcontext, String i_url)
     {
         super();
+        context = mcontext;
+        
         urlString = i_url;
     }
     
-    public GetResult(int year, int month, int day)
+    public GetResult(Context mcontext, String year, String month, String day)
     {
         super();
+        context = mcontext;
+
         urlString = "https://nunofcguerreiro.com/api-euromillions?result="+year+"-"+month+"-"+day;
+        Log.i("GetResult", urlString);
     }
     
      
@@ -87,7 +95,10 @@ public class GetResult  extends AsyncTask<String, Void, Void> {
       
     protected void onPostExecute(Void unused)
     {       
-  	  	MainActivity.setText(Content);
+  	  	//MainActivity.setText(Content);
+    	MenuNumbers.finalProcess(Content);
+  	  	//Toast.makeText(context, "Numbers: " + Content,Toast.LENGTH_LONG).show();
+
     }
       
 }

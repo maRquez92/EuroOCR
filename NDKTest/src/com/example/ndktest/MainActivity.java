@@ -11,6 +11,7 @@ import org.opencv.android.OpenCVLoader;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -38,12 +39,16 @@ public class MainActivity extends Activity {
 	private static final int IMAGE_REQUEST = 1888;
 
 
+	private ArrayList<String> numbersList = new ArrayList<String>();
+	
 	protected static final String TAG = "TAGTEST"; 
 	private Bitmap bitmap;
    
 	private static ImageView imageView;
     public static EditText editText;
 	
+    public static Context mainContext;
+    
 	private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -82,12 +87,14 @@ public class MainActivity extends Activity {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.activity_main);
 
+	    mainContext = this;
+	    
        // MyUtils.CopyTessData(getApplicationContext());
 	    
         editText =(EditText)findViewById(R.id.numbers);
 
         MainActivity.imageView = (ImageView)this.findViewById(R.id.imageView1);
-        Button photoButton = (Button) this.findViewById(R.id.button1);
+        Button photoButton = (Button) this.findViewById(R.id.processButton);
         
         photoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,6 +128,12 @@ public class MainActivity extends Activity {
 		        //define a new Intent for the second Activity
 		  		Intent intent = new Intent(MainActivity.this,MenuNumbers.class);
 		   
+		  		//pass to the new activity the strings
+		  		intent.putExtra("date", "2011-03-11");
+		  	
+	            String[] numbers = new String[numbersList.size()];
+		  		intent.putExtra("numbers", numbers);
+		  		
 		  		//start the second Activity
 		  		startActivity(intent);
 	        }
@@ -132,9 +145,9 @@ public class MainActivity extends Activity {
         
         //Create instance for Getting The Numbers (Async)
         //GetResult task = new GetResult("https://nunofcguerreiro.com/api-euromillions?result=2011-03-11");
-        GetResult task = new GetResult(2011,03,11);
+        //GetResult task = new GetResult(getApplicationContext(),"2011","03","11");
         //Call execute 
-        task.execute();
+        //task.execute();
         
         
         
@@ -241,6 +254,15 @@ public class MainActivity extends Activity {
       }
   }
  
+	public static void finishProcess()
+	{
+		//define a new Intent for the second Activity
+		Intent intent = new Intent(mainContext,MenuNumbers.class);
+		
+		//start the second Activity
+		mainContext.startActivity(intent);
+	}
+  
   
   @Override
   public void onConfigurationChanged(Configuration newConfig)
