@@ -16,15 +16,7 @@
 
 
 
-#include <cmath>
-#include <list>
-#include <algorithm>
-#include <iterator>
-#include <map>
-#include <utility>
-#include <set>
 #include "tesseract/baseapi.h"
-//#include <baseapi.h>
 
 
 using namespace cv;
@@ -53,13 +45,7 @@ extern "C"
 {
 #endif
 
-
-	JNIEXPORT jobjectArray JNICALL Java_com_example_ndktest_NonfreeJNILib_maine( JNIEnv* env, jobject obj, jlong talao, jlong logo, jstring photoPath, jstring tessdataPath, jlong res);
-	JNIEXPORT void JNICALL Java_com_example_ndktest_NonfreeJNILib_nativeDrawSiftKp( JNIEnv* env, jobject obj, jlong mat);
-	//jobjectArray Java_com_pjottersstuff_ocrdemo_OCRProcessor_processImage(
-	//		JNIEnv *env, jobject object, jstring filename, jstring datapath);
-	//jstring Java_com_example_ndktest_NonfreeJNILib_getJniString( JNIEnv* env, jobject obj);
-
+	JNIEXPORT jobjectArray JNICALL Java_com_example_emocr_NonfreeJNILib_maine( JNIEnv* env, jobject obj, jlong talao, jlong logo, jlong image, jstring tessdataPath, jlong res);
 
 #ifdef __cplusplus
 }

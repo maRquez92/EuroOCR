@@ -1,18 +1,20 @@
 #include "ndkCV.hpp"
 
 
-JNIEXPORT jobjectArray JNICALL Java_com_example_ndktest_NonfreeJNILib_maine( JNIEnv* env, jobject obj, jlong talao, jlong logo, jstring photoPath, jstring tessdataPath, jlong res)
+//JNIEXPORT jobjectArray JNICALL Java_com_example_ndktest_NonfreeJNILib_maine( JNIEnv* env, jobject obj, jlong talao, jlong logo, jstring photoPath, jstring tessdataPath, jlong res)
+JNIEXPORT jobjectArray JNICALL Java_com_example_emocr_NonfreeJNILib_maine( JNIEnv* env, jobject obj, jlong talao, jlong logo, jlong image, jstring tessdataPath, jlong res)
 {
 	vector<string> lines;
 
 
 	Mat logoT = *((cv::Mat*)logo);
 	Mat talaoT = *((cv::Mat*)talao);
-	//Mat photoT = *((cv::Mat*)photo);
-	const char * str = env->GetStringUTFChars(photoPath, nullptr);
-	cv::Mat photorgb = cv::imread(str, CV_LOAD_IMAGE_COLOR);
+	Mat photoT = *((cv::Mat*)image);
 
-	env->ReleaseStringUTFChars(photoPath, str);
+	//const char * str = env->GetStringUTFChars(photoPath, nullptr);
+	//cv::Mat photorgb = cv::imread(str, CV_LOAD_IMAGE_COLOR);
+
+	//env->ReleaseStringUTFChars(photoPath, str);
 
 	const char * cstr = env->GetStringUTFChars(tessdataPath, nullptr);
 	std::string tessDataPath(cstr);
@@ -28,8 +30,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_ndktest_NonfreeJNILib_maine( JNI
 	cv::Mat trainTalao = cv::Mat(talaoT.cols, talaoT.rows, CV_8UC3);
 	cv::cvtColor(talaoT, trainTalao, cv::COLOR_RGBA2RGB );
 
-	//cv::Mat photorgb = cv::Mat(photoT.cols, photoT.rows, CV_8UC3);
-	//cv::cvtColor(photoT, photorgb, cv::COLOR_RGBA2RGB );
+	cv::Mat photorgb = cv::Mat(photoT.cols, photoT.rows, CV_8UC3);
+	cv::cvtColor(photoT, photorgb, cv::COLOR_RGBA2RGB );
 
 	float desiredWidth = 500;
 
@@ -95,7 +97,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_ndktest_NonfreeJNILib_maine( JNI
 
 
 
-	//Recordar zona dos Números------------------------------------------------------------------------
+	//Recortar zona dos Números------------------------------------------------------------------------
 
 	Point2i superioresquerdoNumeros = Point2i(0, superioresquerdoLogo.y+recortResultLogo.rows+recortResult.rows/15);
 	Point2i inferiordireitoNumeros =  Point2i(inferiordireitoLogo.x, recortResult.rows);
@@ -230,10 +232,10 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_ndktest_NonfreeJNILib_maine( JNI
 
 char* getText(string tessDataPath, Mat image_with_text, bool data = false)
 {
-	__android_log_print(ANDROID_LOG_DEBUG, "OCR-DEMO",
-					"Looking for tesseract in %s", tessDataPath.c_str());
+		//__android_log_print(ANDROID_LOG_DEBUG, "OCR-DEMO",
+		//			"Looking for tesseract in %s", tessDataPath.c_str());
 
-	const char* lang = "por";
+		const char* lang = "por";
 
 
 		// Pass it to Tesseract API
@@ -243,7 +245,7 @@ char* getText(string tessDataPath, Mat image_with_text, bool data = false)
 		{
 
 		}
-	    //tess.SetVariable("tessedit_char_whitelist", "0123456789ehilmuorsõAEILMNOPRSTUVG/.=€:,-");
+
 	    if(data)
 		{
 			tess.SetVariable("tessedit_char_whitelist", "0123456789/");
@@ -270,7 +272,6 @@ char* getText(string tessDataPath, Mat image_with_text, bool data = false)
 
 	    delete &tess;
 
-	    LOGI( "Complete! \n");
 	    LOGI( "Res = %s! \n",out);
 
 	return out;
@@ -292,11 +293,6 @@ Mat Detect(Mat train, Mat test, Point2i *supLeftOut, Point2i *infRightOut, int *
     Mat des_object;
 
 	extractor.compute( train, kp_object, des_object );
-
-
-	//namedWindow("des");
-	//cv::resize(recortResult, recortResult, Size(recortResult.size().width/4,recortResult.size().height/4));
-	//imshow( "des", des_object );
 
     FlannBasedMatcher matcher;
 
@@ -477,8 +473,6 @@ Mat processImage(const Mat& inputImage, bool numeros = false, bool data = false)
 				{
 					cv::Mat tile = grayLevelA(cv::Range(r, min(r + N, grayLevelA.rows)),
 								 cv::Range(c, min(c + N, grayLevelA.cols)));//no data copying here
-					//cv::Mat tileCopy = img(cv::Range(r, min(r + N, img.rows)),
-								 //cv::Range(c, min(c + N, img.cols))).clone();//with data copying
 
 					//tile can be smaller than NxN if image size is not a factor of N
 
@@ -504,7 +498,7 @@ Mat processImage(const Mat& inputImage, bool numeros = false, bool data = false)
 			for( size_t i = 0; i < lines.size(); i++ )
 			{
 
-				float rho = lines[i][0], theta = lines[i][1];
+				//float rho = lines[i][0], theta = lines[i][1];
 
 				//if( theta>CV_PI/180*80 || theta<CV_PI/180*100)
 				if(abs(lines[i][1] - lines[i][3]) <= 20)
@@ -525,8 +519,6 @@ Mat processImage(const Mat& inputImage, bool numeros = false, bool data = false)
 
 			}
 
-			//cv::namedWindow( "LINES", CV_WINDOW_NORMAL );
-			//cv::imshow( "LINES", linesR );
 
 			Mat resultB = grayLevelA(Rect(0,0,grayLevelA.size().width,yMax));
 
@@ -542,8 +534,6 @@ Mat processImage(const Mat& inputImage, bool numeros = false, bool data = false)
 				{
 					cv::Mat tile = resultB(cv::Range(r, min(r + N, resultB.rows)),
 								 cv::Range(c, min(c + N, resultB.cols)));//no data copying here
-					//cv::Mat tileCopy = img(cv::Range(r, min(r + N, img.rows)),
-								 //cv::Range(c, min(c + N, img.cols))).clone();//with data copying
 
 					//tile can be smaller than NxN if image size is not a factor of N
 
@@ -568,7 +558,7 @@ Mat processImage(const Mat& inputImage, bool numeros = false, bool data = false)
 		}
 
 		//int kernel_size = 4;
-		std::cout << "kernelsize = " << kernel_size << std::endl;
+		//std::cout << "kernelsize = " << kernel_size << std::endl;
 		cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(kernel_size, kernel_size));
 		//cv::Mat element(kernel_size,kernel_size,CV_8UC1);
 
@@ -876,158 +866,4 @@ vector<string> processInformation(vector<string> lines)
 
 	return res;
 }
-
-
-Mat Detect(Mat train, Mat test, cv::Point2f *supLeftOut, cv::Point2f *infRightOut, int *additionalRowsOut, Mat *rotationMatrixOut)
-{
-	//Detect the keypoints using SURF Detector
-    int minHessian = 500;
-
-    SurfFeatureDetector detector( minHessian );
-    std::vector<KeyPoint> kp_object;
-
-	detector.detect( train, kp_object );
-
-    //Calculate descriptors (feature vectors)
-    SurfDescriptorExtractor extractor;
-    Mat des_object;
-
-    //
-	extractor.compute( train, kp_object, des_object );
-
-    FlannBasedMatcher matcher;
-
-
-    std::vector<Point2f> obj_corners(4);
-
-    //Get the corners from the train
-    obj_corners[0] = cvPoint(0,0);
-    obj_corners[1] = cvPoint( train.cols, 0 );
-    obj_corners[2] = cvPoint( train.cols, train.rows );
-    obj_corners[3] = cvPoint( 0, train.rows );
-
-    int framecount = 0;
-	Mat frame = test.clone();
-
-
-
-    Mat des_image, img_matches;
-    std::vector<KeyPoint> kp_image;
-    std::vector<vector<DMatch > > matches;
-    std::vector<DMatch > good_matches;
-    std::vector<Point2f> obj;
-    std::vector<Point2f> scene;
-    std::vector<Point2f> scene_corners(4);
-    Mat H;
-    Mat image;
-
-    cvtColor(frame, image, CV_RGB2GRAY);
-
-    detector.detect( image, kp_image );
-    extractor.compute( image, kp_image, des_image );
-
-    matcher.knnMatch(des_object, des_image, matches, 2);
-
-    for(int i = 0; i < min(des_image.rows-1,(int) matches.size()); i++) //THIS LOOP IS SENSITIVE TO SEGFAULTS
-    {
-        if((matches[i][0].distance < 0.6*(matches[i][1].distance)) && ((int) matches[i].size()<=2 && (int) matches[i].size()>0))
-        {
-            good_matches.push_back(matches[i][0]);
-        }
-    }
-
-    //Draw only "good" matches
-	drawMatches( train, kp_object, image, kp_image, good_matches, img_matches, Scalar::all(-1), Scalar::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
-
-    if (good_matches.size() >= 4)
-    {
-        for( int i = 0; i < good_matches.size(); i++ )
-        {
-            //Get the keypoints from the good matches
-            obj.push_back( kp_object[ good_matches[i].queryIdx ].pt );
-            scene.push_back( kp_image[ good_matches[i].trainIdx ].pt );
-        }
-
-        H = findHomography( obj, scene, CV_RANSAC );
-
-        perspectiveTransform( obj_corners, scene_corners, H);
-
-        //Draw lines between the corners (the mapped train in the scene image )
-        line( img_matches, scene_corners[0] + Point2f( train.cols, 0), scene_corners[1] + Point2f( train.cols, 0), Scalar(0, 255, 0), 4 );
-        line( img_matches, scene_corners[1] + Point2f( train.cols, 0), scene_corners[2] + Point2f( train.cols, 0), Scalar( 0, 255, 0), 4 );
-        line( img_matches, scene_corners[2] + Point2f( train.cols, 0), scene_corners[3] + Point2f( train.cols, 0), Scalar( 0, 255, 0), 4 );
-        line( img_matches, scene_corners[3] + Point2f( train.cols, 0), scene_corners[0] + Point2f( train.cols, 0), Scalar( 0, 255, 0), 4 );
-    }
-
-
-
-	Point2f superioresquerdo(scene_corners[0] + Point2f( train.cols, 0));
-	Point2f inferiordireito(scene_corners[2] + Point2f( train.cols, 0));
-	//printf("%d - %d \n",superioresquerdo.x,superioresquerdo.y);
-	//printf("%d - %d \n",inferiordireito.x,inferiordireito.y);
-	supLeftOut->x = superioresquerdo.x;
-	supLeftOut->y = superioresquerdo.y;
-	infRightOut->x = inferiordireito.x;
-	infRightOut->y = inferiordireito.y;
-
-	*additionalRowsOut = train.cols;
-	*rotationMatrixOut = H.inv();
-	return img_matches;
-}
-
-
-
-
-int drawSiftKp( cv::Mat image )
-{
-	cv::Mat rgb = cv::Mat(image.cols, image.rows, CV_8UC3);
-	cv::cvtColor(image, rgb, cv::COLOR_RGBA2RGB );
-
-	std::vector< cv::KeyPoint > keypoints;
-
-	cv::SiftFeatureDetector detector;
-	detector.detect( rgb, keypoints );
-
-	cv::drawKeypoints( rgb, keypoints, rgb, cv::Scalar(255,0,0,255),
-			cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
-
-	cv::cvtColor(rgb, image, cv::COLOR_RGB2RGBA);
-
-	return 0;
-}
-
-
-
-
-
-JNIEXPORT void JNICALL Java_com_example_ndktest_NonfreeJNILib_nativeDrawSiftKp(JNIEnv* env, jobject obj, jlong mat)
-{
-	//cv::cvtColor(*((cv::Mat*)mat), *((cv::Mat*)mat), cv::COLOR_RGB2GRAY);
-	cv::Mat res = *((cv::Mat*)mat);
-
-	float widthProportion = (float)1000/res.size().width;
-
-	cv::resize(res, res, Size(res.size().width*widthProportion,res.size().height*widthProportion));
-
-	drawSiftKp( res );
-
-	*((cv::Mat*)mat) = res;
-	//return (jobject)res;
-}
-/*
-JNIEXPORT void JNICALL Java_com_example_ndktest_NonfreeJNILib_nativeDrawSiftKp(JNIEnv* env, jobject obj, jlong mat)
-{
-	//cv::cvtColor(*((cv::Mat*)mat), *((cv::Mat*)mat), cv::COLOR_RGB2GRAY);
-	cv::Mat* res = ((cv::Mat*)mat);
-	cv::Mat res = *((cv::Mat*)mat);
-
-	float widthProportion = (float)1000/res->size().width;
-
-	cv::resize(res, res, Size(res->size().width*widthProportion,res->size().height*widthProportion));
-
-	drawSiftKp( res );
-
-	//return (jobject)res;
-}
-*/
 

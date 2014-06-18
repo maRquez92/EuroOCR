@@ -3,7 +3,7 @@
     android:id="@+id/menunumbers"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.ndktest.MainActivity"
+    tools:context="com.example.emocr.MainActivity"
     tools:ignore="MergeRootFrame" >
 
     <ImageView
@@ -14,18 +14,11 @@
         android:src="@drawable/abc_ab_bottom_solid_dark_holo" />
 
     <Button
-        android:id="@+id/processButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:text="Load" />
-
-    <Button
         android:id="@+id/button2"
         android:layout_width="164dp"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginLeft="100dp"
+        android:layout_marginLeft="0dp"
         android:text="Process" />
 
     <EditText
@@ -42,8 +35,18 @@
         android:id="@+id/button3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="Button" />
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="170dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="0dp"
+        android:text="Last Numbers" />
+
+    <Button
+        android:id="@+id/processButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="45dp"
+        android:text="Load Image" />
 
 </FrameLayout>
 

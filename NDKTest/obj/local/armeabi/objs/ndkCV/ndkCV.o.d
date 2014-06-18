@@ -96,8 +96,6 @@ obj/local/armeabi/objs/ndkCV/ndkCV.o: jni/ndkCV.cpp jni/ndkCV.hpp \
  C:/Users/Paulo/Downloads/OpenCV-2.4.8-android-sdk/OpenCV-2.4.8-android-sdk/sdk/native/jni/include/opencv2/highgui/highgui_c.h \
  C:/Users/Paulo/Downloads/OpenCV-2.4.8-android-sdk/OpenCV-2.4.8-android-sdk/sdk/native/jni/include/opencv2/nonfree/features2d.hpp \
  C:/Users/Paulo/Downloads/OpenCV-2.4.8-android-sdk/OpenCV-2.4.8-android-sdk/sdk/native/jni/include/opencv2/nonfree/nonfree.hpp \
- C:/Users/Paulo/Downloads/android-ndk-r9c-windows-x86_64/android-ndk-r9c/sources/cxx-stl/gnu-libstdc++/4.8/include/list \
- C:/Users/Paulo/Downloads/android-ndk-r9c-windows-x86_64/android-ndk-r9c/sources/cxx-stl/gnu-libstdc++/4.8/include/iterator \
  C:\toolkits\includes/tesseract/baseapi.h \
  C:\toolkits\includes/tesseract/platform.h \
  C:\toolkits\includes/tesseract/apitypes.h \
@@ -313,10 +311,6 @@ C:/Users/Paulo/Downloads/OpenCV-2.4.8-android-sdk/OpenCV-2.4.8-android-sdk/sdk/n
 C:/Users/Paulo/Downloads/OpenCV-2.4.8-android-sdk/OpenCV-2.4.8-android-sdk/sdk/native/jni/include/opencv2/nonfree/features2d.hpp:
 
 C:/Users/Paulo/Downloads/OpenCV-2.4.8-android-sdk/OpenCV-2.4.8-android-sdk/sdk/native/jni/include/opencv2/nonfree/nonfree.hpp:
-
-C:/Users/Paulo/Downloads/android-ndk-r9c-windows-x86_64/android-ndk-r9c/sources/cxx-stl/gnu-libstdc++/4.8/include/list:
-
-C:/Users/Paulo/Downloads/android-ndk-r9c-windows-x86_64/android-ndk-r9c/sources/cxx-stl/gnu-libstdc++/4.8/include/iterator:
 
 C:\toolkits\includes/tesseract/baseapi.h:
 
