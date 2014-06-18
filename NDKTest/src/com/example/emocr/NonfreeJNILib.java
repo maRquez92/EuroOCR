@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.opencv.core.Mat;
 
-import android.util.Log;
 
 public class NonfreeJNILib {
     

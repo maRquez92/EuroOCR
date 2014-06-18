@@ -2,7 +2,6 @@ package com.example.emocr;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.opencv.android.Utils;
@@ -17,12 +16,11 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.util.Log;
-import android.widget.Toast;
 
 public class ProcessImage extends AsyncTask<String, Void, Void>
 {
     
-   private String TAG = "PROCCESS IMAGE";
+   private String TAG = this.getClass().getName();
 
 	   
    // Required initialization
@@ -112,11 +110,12 @@ public class ProcessImage extends AsyncTask<String, Void, Void>
       
     protected void onPostExecute(Void unused)
     {
-  	  
+  	  /*
   	  for (String str : results)
   	  {
   		  MainActivity.appendText(str+"\n");
   	  }
+  	  */
   	  
   	  MyUtils.splitRecognizedStrings(results);
 

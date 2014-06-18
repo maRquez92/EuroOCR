@@ -10,16 +10,13 @@ import java.net.URLConnection;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
-
-//Class with extends AsyncTask class
 
 public class GetResult  extends AsyncTask<String, Void, Void> {
       
     // Required initialization
      
-    private String Content;
+    private String content;
     String data ="";
     String urlString;
     Context context;
@@ -51,54 +48,50 @@ public class GetResult  extends AsyncTask<String, Void, Void> {
     // Call after onPreExecute method
     protected Void doInBackground(String... urls) {
          
-  			URL url;
+		URL url;
 
-  	        String res = new String();
-  	              
-  			try 
-  			{
-  				// get URL content
-  				url = new URL(urlString);
-  				URLConnection conn = url.openConnection();
+        String res = new String();
+              
+		try 
+		{
+			// get URL content
+			url = new URL(urlString);
+			URLConnection conn = url.openConnection();
 
-  				// open the stream and put it into BufferedReader
-  				BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			// open the stream and put it into BufferedReader
+			BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
-  				String inputLine;
+			String inputLine;
 
 
-  				while ((inputLine = br.readLine()) != null)
-  				{
-  					res = res.concat(inputLine );
-  				}
+			while ((inputLine = br.readLine()) != null)
+			{
+				res = res.concat(inputLine );
+			}
 
-  				br.close();
+			br.close();
 
-  				//System.out.println("Res="+res);
-  		        Log.d("MainActivity","Res=" + res);
-  		        Content = res;
+	        Log.d("MainActivity","Res=" + res);
+	        content = res;
 
-  			}
-  			catch (MalformedURLException e)
-  			{
-  				e.printStackTrace();
-  			}
-  			catch (IOException e)
-  			{
-  				e.printStackTrace();
-  			}
-				
-  			return null;
+		}
+		catch (MalformedURLException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+			
+		return null;
 
   		
     }
       
     protected void onPostExecute(Void unused)
     {       
-  	  	//MainActivity.setText(Content);
-    	MenuNumbers.finalProcess(Content);
-  	  	//Toast.makeText(context, "Numbers: " + Content,Toast.LENGTH_LONG).show();
-
+    	MenuNumbers.finalProcess(content);
     }
       
 }

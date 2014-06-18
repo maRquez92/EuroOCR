@@ -1,7 +1,6 @@
 package com.example.emocr;
  
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +10,7 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -33,27 +33,32 @@ import android.widget.Toast;
  
 public class MainActivity extends Activity {
    
+	protected static final String TAG = "MainActivity"; 
+
 	public static final String DATA_PATH = Environment
 			.getExternalStorageDirectory().toString() + "/EuroOCR/";
 	
-	public static final String LANG = "por";
-	
 	private static final int IMAGE_REQUEST = 1888;
 
-
-	private ArrayList<String> numbersList = new ArrayList<String>();
+	public static final String LANG = "por";
 	
-	protected static final String TAG = "TAGTEST"; 
+	
+	private static ProgressDialog progressDialog;
+	private static ImageView imageView;
+    //public static EditText editText;
+    
 	private Bitmap bitmap;
    
-	private static ImageView imageView;
-    public static EditText editText;
+	
 	
     public static Context mainContext;
     public static boolean onProcess = false;
     public static boolean imageLoaded = false;
     
-	private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
+    
+    
+	private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this)
+	{
         @Override
         public void onManagerConnected(int status) {
             switch (status) {
@@ -69,6 +74,7 @@ public class MainActivity extends Activity {
             }
         }
     };
+    
 	
     /** Call on every application resume **/
     @Override
@@ -87,13 +93,11 @@ public class MainActivity extends Activity {
  
   @Override
     public void onCreate(Bundle savedInstanceState) {
-	  Log.i(TAG, "onCreate");
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.activity_main);
 
-	    mainContext = this;
-	    	    
-        editText =(EditText)findViewById(R.id.numbers);
+	    mainContext = this; 	    
+        //editText =(EditText)findViewById(R.id.numbers);
 
         MainActivity.imageView = (ImageView)this.findViewById(R.id.imageView1);
         Button photoButton = (Button) this.findViewById(R.id.processButton);
@@ -130,6 +134,8 @@ public class MainActivity extends Activity {
             	}
             	else
             	{
+            		progressDialog = ProgressDialog.show(mainContext, "Please Wait", "Processing Image");
+
             		onProcess = true;
               	  	Toast.makeText(mainContext, "Please Wait...",Toast.LENGTH_LONG).show();
 
@@ -156,11 +162,9 @@ public class MainActivity extends Activity {
 	        }
         });
         
-        
-       // new AlertDialog.Builder(this).setMessage("res="+resNumbers).show();
     }
   
-  
+  /*
   public static void setText(String text)
   {
 	  editText.setText(text);
@@ -170,11 +174,14 @@ public class MainActivity extends Activity {
   {
 	  editText.append(text);
   }
+  */
   
   public static void setImage(Bitmap image)
   {
   	  imageView.setImageBitmap(image);
   }
+  
+  
   
   private Uri outputFileUri;
 
@@ -277,6 +284,7 @@ public class MainActivity extends Activity {
 	public static void finishProcess()
 	{
 		onProcess = false;
+		progressDialog.dismiss();
 		
 		//define a new Intent for the second Activity
 		Intent intent = new Intent(mainContext,MenuNumbers.class);

@@ -52,7 +52,6 @@ public class MyUtils {
 		
 		Calendar calendar = new GregorianCalendar();
 
-
 		
 		int lastLineType = 0;	// numbers - 1 | stars - 2
 		boolean lastDateNoProblem = false;
@@ -94,20 +93,32 @@ public class MyUtils {
 				}
 				try
 				{
+					Log.i("OCR TEST", "imonth ="+imonth);
+
 					imonth = Integer.parseInt(dateNumbers[1].trim());
+					Log.i("OCR TEST", "imonth ="+imonth);
+					
 					if(imonth > 12)
 					{
 						imonth = actualMonth;
+						Log.i("OCR TEST", "Entrou imonth ="+imonth);
+
 					}
 				}
 				catch(Exception e)
 				{
 					imonth = actualMonth;
+					Log.i("OCR TEST", "Erro imonth ="+imonth);
+
 					errors++;
 				}
 				try
 				{
-					iday = Integer.parseInt(dateNumbers[2].trim());
+					iday = Integer.parseInt(dateNumbers[2].trim());//.substring(0, 2));
+					if(iday > calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+					{
+						iday = actualDay;
+					}
 				}
 				catch(Exception e)
 				{
@@ -120,21 +131,25 @@ public class MyUtils {
 				calendar.set(Calendar.MONTH, imonth - 1);
 				calendar.set(Calendar.DAY_OF_MONTH, iday);
 				
-				int weekDay = getWeekday(iyear, imonth, iday);
+				int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
+				//int weekDay = getWeekday(iyear, imonth, iday);
 				
-				if( weekDay != 2 && weekDay != 5)
+
+				// If day of week it's not tuesday or friday
+				while( weekDay != 3 && weekDay != 6 )
 				{
-					while( weekDay != 2 && weekDay != 5 )
-					{
-						weekDay--;
-						
-					}
-					
+					weekDay--;
+					calendar.add(Calendar.DAY_OF_MONTH,-1);
 				}
 				
-				year = Integer.toString(iyear);
-				month = format(imonth);
-				day = format(iday);
+
+				year = Integer.toString(calendar.get(Calendar.YEAR));
+				month = format(calendar.get(Calendar.MONTH) + 1);
+				day = format(calendar.get(Calendar.DAY_OF_MONTH));
+				
+//				year = Integer.toString(iyear);
+//				month = format(imonth);
+//				day = format(iday);
 				
 				if(errors < 1)
 				{
@@ -360,6 +375,15 @@ public static String expandDataIfNeeded(Context context) {
 	}
 	
 	return path.getAbsolutePath();
+}
+
+public static boolean isNumeric(String str)
+{
+    for (char c : str.toCharArray())
+    {
+        if (!Character.isDigit(c)) return false;
+    }
+    return true;
 }
 	
 	
